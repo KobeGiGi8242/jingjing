@@ -4,51 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
-    <!-- 引入 instascan 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/instascan@1.0.0"></script>
+    <!-- 引入 QuaggaJS 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/quagga/dist/quagga.min.js"></script>
 </head>
 <body>
     <h1>QR Code Scanner</h1>
-    <video id="preview" style="width:100%;max-width:600px;"></video>
+    <div id="scanner-container" style="width:100%;max-width:600px;"></div>
     <script>
         // 当页面加载完成后执行
         window.onload = function() {
-            // 获取 video 元素
-            var video = document.getElementById('preview');
-            
-            // 获取用户媒体设备（摄像头）
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(function(stream) {
-                // 成功获取到摄像头视频流
-                // 将视频流绑定到 video 元素上
-                video.srcObject = stream;
-                video.play();
+            // 设置 QuaggaJS 配置
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    constraints: {
+                        width: { min: 640 },
+                        height: { min: 480 },
+                        facingMode: "environment" // 使用后置摄像头
+                    },
+                },
+                locator: {
+                    patchSize: "medium",
+                    halfSample: true,
+                },
+                numOfWorkers: navigator.hardwareConcurrency || 2, // 使用浏览器硬件并发数
+                locate: true,
+                decoder: {
+                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
+                },
+            }, function(err) {
+                if (err) {
+                    console.error('QuaggaJS 初始化失败：', err);
+                    return;
+                }
+                // 初始化成功后，启动 QuaggaJS 扫描
+                Quagga.start();
+            });
 
-                // 创建一个 Instascan 扫描器
-                var scanner = new Instascan.Scanner({ video: video });
-                
-                // 添加监听器，监听扫码事件
-                scanner.addListener('scan', function (content) {
-                    // 扫码成功后的处理
-                    alert('扫描结果：' + content);
-                    // 这里可以根据扫描结果进行逻辑处理
-                });
-                
-                // 在页面上显示所有可用的摄像头
-                Instascan.Camera.getCameras().then(function (cameras) {
-                    if (cameras.length > 0) {
-                        // 如果有可用摄像头，则使用第一个摄像头
-                        scanner.start(cameras[0]);
-                    } else {
-                        // 如果没有可用摄像头，则提示用户
-                        alert('没有发现摄像头！');
-                    }
-                });
-            })
-            .catch(function(err) {
-                // 获取摄像头失败，提示用户
-                console.error('无法访问摄像头：', err);
-                alert('无法访问摄像头：' + err);
+            // 监听 QuaggaJS 扫描事件
+            Quagga.onDetected(function(result) {
+                console.log('扫描结果：', result);
+                // 处理扫描结果
+                alert('扫描结果：' + result.codeResult.code);
             });
         };
     </script>
