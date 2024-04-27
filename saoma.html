@@ -3,51 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code</title>
+    <title>QR Code Scanner</title>
+    <!-- 引入 instascan 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/instascan@1.0.0"></script>
 </head>
 <body>
-    <video id="video" width="300" height="300" style="display:none;"></video>
-    <button id="scanButton">Scan QR Code</button>
-
-    <!-- 加载 ZXing 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.23.0/umd/index.min.js" defer></script>
-
+    <h1>QR Code Scanner</h1>
+    <video id="preview" style="width:100%;max-width:600px;"></video>
     <script>
-        const video = document.getElementById('video');
-        const scanButton = document.getElementById('scanButton');
-
-        function decodeQR() {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-            // 使用ZXing库来解码图像中的二维码
-            const codeReader = new ZXing.BrowserQRCodeReader();
-            codeReader.decodeFromImage(imageData).then(result => {
-                console.log('QR Code detected: ', result.text);
-                // 在此处可以对识别到的二维码进行处理，例如显示在页面上
-            }).catch(error => {
-                console.error('Error decoding QR Code: ', error);
-            });
-        };
-
-        scanButton.addEventListener('click', () => {
-            // 使用getUserMedia调用摄像头
-            navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
+        // 当页面加载完成后执行
+        window.onload = function() {
+            // 获取 video 元素
+            var video = document.getElementById('preview');
+            
+            // 获取用户媒体设备（摄像头）
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(function(stream) {
+                // 成功获取到摄像头视频流
+                // 将视频流绑定到 video 元素上
                 video.srcObject = stream;
                 video.play();
 
-                // 每隔一段时间解码一次二维码
-                setInterval(decodeQR, 1000);
+                // 创建一个 Instascan 扫描器
+                var scanner = new Instascan.Scanner({ video: video });
+                
+                // 添加监听器，监听扫码事件
+                scanner.addListener('scan', function (content) {
+                    // 扫码成功后的处理
+                    alert('扫描结果：' + content);
+                    // 这里可以根据扫描结果进行逻辑处理
+                });
+                
+                // 在页面上显示所有可用的摄像头
+                Instascan.Camera.getCameras().then(function (cameras) {
+                    if (cameras.length > 0) {
+                        // 如果有可用摄像头，则使用第一个摄像头
+                        scanner.start(cameras[0]);
+                    } else {
+                        // 如果没有可用摄像头，则提示用户
+                        alert('没有发现摄像头！');
+                    }
+                });
             })
-            .catch(error => {
-                console.error('Error accessing camera: ', error);
+            .catch(function(err) {
+                // 获取摄像头失败，提示用户
+                console.error('无法访问摄像头：', err);
+                alert('无法访问摄像头：' + err);
             });
-        });
+        };
     </script>
 </body>
 </html>
