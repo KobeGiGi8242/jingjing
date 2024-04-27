@@ -10,50 +10,44 @@
     <button id="scanButton">Scan QR Code</button>
 
     <!-- 加载 ZXing 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.23.0/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.23.0/umd/index.min.js" defer></script>
 
     <script>
-        window.onload = function() {
-            const video = document.getElementById('video');
-            const scanButton = document.getElementById('scanButton');
+        const video = document.getElementById('video');
+        const scanButton = document.getElementById('scanButton');
 
-            scanButton.addEventListener('click', () => {
-                // 使用getUserMedia调用摄像头
-                navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.play();
+        function decodeQR() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-                    // 调用ZXing库来解码二维码
-                    const decodeQR = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-                        // 使用ZXing库来解码图像中的二维码
-                        const codeReader = new ZXing.BrowserQRCodeReader();
-                        codeReader.decodeFromImage(imageData).then(result => {
-                            console.log('QR Code detected: ', result.text);
-                            // 在此处可以对识别到的二维码进行处理，例如显示在页面上
-                        }).catch(error => {
-                            console.error('Error decoding QR Code: ', error);
-                        }).finally(() => {
-                            // 清理工作，停止摄像头视频流
-                            stream.getTracks().forEach(track => track.stop());
-                        });
-                    };
-
-                    // 每隔一段时间解码一次二维码
-                    setInterval(decodeQR, 1000);
-                })
-                .catch(error => {
-                    console.error('Error accessing camera: ', error);
-                });
+            // 使用ZXing库来解码图像中的二维码
+            const codeReader = new ZXing.BrowserQRCodeReader();
+            codeReader.decodeFromImage(imageData).then(result => {
+                console.log('QR Code detected: ', result.text);
+                // 在此处可以对识别到的二维码进行处理，例如显示在页面上
+            }).catch(error => {
+                console.error('Error decoding QR Code: ', error);
             });
         };
+
+        scanButton.addEventListener('click', () => {
+            // 使用getUserMedia调用摄像头
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+
+                // 每隔一段时间解码一次二维码
+                setInterval(decodeQR, 1000);
+            })
+            .catch(error => {
+                console.error('Error accessing camera: ', error);
+            });
+        });
     </script>
 </body>
 </html>
