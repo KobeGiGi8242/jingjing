@@ -10,43 +10,50 @@
 <body>
     <h1>QR Code Scanner</h1>
     <div id="scanner-container" style="width:100%;max-width:600px;"></div>
+    <button id="scan-btn">点击扫码</button>
     <script>
         // 当页面加载完成后执行
         window.onload = function() {
-            // 设置 QuaggaJS 配置
-            Quagga.init({
-                inputStream: {
-                    name: "Live",
-                    type: "LiveStream",
-                    constraints: {
-                        width: { min: 640 },
-                        height: { min: 480 },
-                        facingMode: "environment" // 使用后置摄像头
+            // 获取扫码按钮元素
+            var scanButton = document.getElementById('scan-btn');
+            
+            // 添加点击事件监听器
+            scanButton.addEventListener('click', function() {
+                // 设置 QuaggaJS 配置
+                Quagga.init({
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        constraints: {
+                            width: { min: 640 },
+                            height: { min: 480 },
+                            facingMode: "environment" // 使用后置摄像头
+                        },
                     },
-                },
-                locator: {
-                    patchSize: "medium",
-                    halfSample: true,
-                },
-                numOfWorkers: navigator.hardwareConcurrency || 2, // 使用浏览器硬件并发数
-                locate: true,
-                decoder: {
-                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
-                },
-            }, function(err) {
-                if (err) {
-                    console.error('QuaggaJS 初始化失败：', err);
-                    return;
-                }
-                // 初始化成功后，启动 QuaggaJS 扫描
-                Quagga.start();
-            });
+                    locator: {
+                        patchSize: "medium",
+                        halfSample: true,
+                    },
+                    numOfWorkers: navigator.hardwareConcurrency || 2, // 使用浏览器硬件并发数
+                    locate: true,
+                    decoder: {
+                        readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
+                    },
+                }, function(err) {
+                    if (err) {
+                        console.error('QuaggaJS 初始化失败：', err);
+                        return;
+                    }
+                    // 初始化成功后，启动 QuaggaJS 扫描
+                    Quagga.start();
+                });
 
-            // 监听 QuaggaJS 扫描事件
-            Quagga.onDetected(function(result) {
-                console.log('扫描结果：', result);
-                // 处理扫描结果
-                alert('扫描结果：' + result.codeResult.code);
+                // 监听 QuaggaJS 扫描事件
+                Quagga.onDetected(function(result) {
+                    console.log('扫描结果：', result);
+                    // 处理扫描结果
+                    alert('扫描结果：' + result.codeResult.code);
+                });
             });
         };
     </script>
