@@ -6,16 +6,19 @@
     <title>Scan QR Code</title>
 </head>
 <body>
-<video id="video" width="300" height="300" style="display:none;"></video>
-<button id="scanButton">Scan QR Code</button>
+    <video id="video" width="300" height="300" style="display:none;"></video>
+    <button id="scanButton">Scan QR Code</button>
 
-<script>
-    const video = document.getElementById('video');
-    const scanButton = document.getElementById('scanButton');
+    <!-- 加载 ZXing 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.23.0/umd/index.min.js"></script>
 
-    scanButton.addEventListener('click', () => {
-        // 使用getUserMedia调用摄像头
-        navigator.mediaDevices.getUserMedia({ video: true })
+    <script>
+        const video = document.getElementById('video');
+        const scanButton = document.getElementById('scanButton');
+
+        scanButton.addEventListener('click', () => {
+            // 使用getUserMedia调用摄像头
+            navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
                 video.srcObject = stream;
                 video.play();
@@ -48,7 +51,7 @@
             .catch(error => {
                 console.error('Error accessing camera: ', error);
             });
-    });
-</script>
+        });
+    </script>
 </body>
 </html>
