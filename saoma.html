@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描3</button>
+    <button id="scanButton">开始扫描4</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -23,8 +23,8 @@
         const errorDiv = document.getElementById('error');
 
         scanButton.addEventListener('click', function() {
-            // 获取用户媒体流，选择前置摄像头
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            // 获取用户媒体流，选择后置摄像头
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function(stream) {
                     video.srcObject = stream;
                     video.play();
