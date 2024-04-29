@@ -11,7 +11,7 @@
         <video id="video" width="300" height="300" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
-        <button id="scanButton">开始扫描19</button>
+        <button id="scanButton">开始扫描20</button>
     </div>
     <div id="error"></div>
 
@@ -79,7 +79,7 @@
                     // 停止视频播放
                     video.pause();
                     isScanning = false;
-                    // 显示扫描成功后，点击按钮重新开始扫描的提示
+                    // 显示扫描成功后，点击按钮重新扫描的提示
                     scannerDiv.innerHTML += '<p>扫描成功，点击按钮重新扫描</p>';
                 } else {
                     console.log('未扫描到二维码');
