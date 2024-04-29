@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描12</button>
+    <button id="scanButton">开始扫描13</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -22,31 +22,40 @@
         const scanButton = document.getElementById('scanButton');
         const errorDiv = document.getElementById('error');
         let stream;
+        let isScanning = false;
 
         // 检查是否支持 mediaDevices 对象
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             scanButton.addEventListener('click', function() {
-                // 如果已经有摄像头流存在，先关闭
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
+                if (!isScanning) {
+                    startScanning();
                 }
-
-                // 获取用户媒体流，选择后置摄像头
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                    .then(function(userMediaStream) {
-                        stream = userMediaStream;
-                        video.srcObject = stream;
-                        video.play();
-                        // 实时处理视频流
-                        processVideo();
-                    })
-                    .catch(function(error) {
-                        console.error('获取摄像头出错: ', error);
-                        errorDiv.innerText = `获取摄像头出错 ${error}`;
-                    });
             });
         } else {
             errorDiv.innerText = '浏览器不支持 getUserMedia API';
+        }
+
+        function startScanning() {
+            isScanning = true;
+            // 如果已经有摄像头流存在，先关闭
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            // 获取用户媒体流，选择后置摄像头
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(userMediaStream) {
+                    stream = userMediaStream;
+                    video.srcObject = stream;
+                    video.play();
+                    // 实时处理视频流
+                    processVideo();
+                })
+                .catch(function(error) {
+                    console.error('获取摄像头出错: ', error);
+                    errorDiv.innerText = `获取摄像头出错 ${error}`;
+                    isScanning = false;
+                });
         }
 
         function processVideo() {
@@ -66,6 +75,7 @@
                     stream.getTracks().forEach(track => track.stop());
                     // 停止视频播放
                     video.pause();
+                    isScanning = false;
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
@@ -75,6 +85,7 @@
             } catch (error) {
                 console.error('扫描出错: ', error);
                 errorDiv.innerText = `扫描出错: ${error.message}`;
+                isScanning = false;
             }
         }
     </script>
