@@ -12,7 +12,7 @@
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
         <div id="error"></div>
-        <button id="scanButton">开始扫描23</button>
+        <button id="scanButton">开始扫描24</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -70,10 +70,10 @@
                 if (code) {
                     console.log('扫描结果: ' + code.data);
                     resultDiv.innerText = `扫描结果 ${code.data}`;
-                    // 扫描到二维码后关闭摄像头
-                    stream.getTracks().forEach(track => track.stop());
                     // 停止视频播放
                     video.pause();
+                    // 关闭视频页面
+                    closeScanner();
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
@@ -92,6 +92,10 @@
 
         function clearResult() {
             resultDiv.innerText = '';
+        }
+
+        function closeScanner() {
+            scannerDiv.style.display = 'none';
         }
     </script>
 </body>
