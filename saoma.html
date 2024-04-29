@@ -11,7 +11,7 @@
         <video id="video" width="300" height="300" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
-        <button id="scanButton">开始扫描17</button>
+        <button id="scanButton">开始扫描18</button>
     </div>
     <div id="error"></div>
 
@@ -49,9 +49,10 @@
                 .then(function(userMediaStream) {
                     stream = userMediaStream;
                     video.srcObject = stream;
-                    video.play();
-                    // 实时处理视频流
-                    processVideo();
+                    video.play().then(() => {
+                        // 实时处理视频流
+                        processVideo();
+                    });
                 })
                 .catch(function(error) {
                     console.error('获取摄像头出错: ', error);
