@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描14</button>
+    <button id="scanButton">开始扫描15</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -26,8 +26,11 @@
 
         // 检查是否支持 mediaDevices 对象
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // 在页面加载时直接开始扫描
-            startScanning();
+            scanButton.addEventListener('click', function() {
+                if (!isScanning) {
+                    startScanning();
+                }
+            });
         } else {
             errorDiv.innerText = '浏览器不支持 getUserMedia API';
         }
