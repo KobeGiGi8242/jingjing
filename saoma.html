@@ -6,104 +6,93 @@
     <title>Live Stream with QR Code Recognition</title>
 </head>
 <body>
-    <h1>Live Stream with QR Code Recognition</h1>
-    <div id="scanner">
-        <video id="video" width="300" height="300" autoplay></video>
-        <canvas id="canvas" style="display: none;"></canvas>
-        <div id="result"></div>
-        <div id="error"></div>
-        <button id="scanButton">开始扫描27</button>
-    </div>
+<h1>Live Stream with QR Code Recognition</h1>
+<div id="scanner">
+    <video id="video" width="300" height="300" autoplay></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div id="result"></div>
+    <div id="error"></div>
+    <button id="scanButton">开始扫描23</button>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
-    <script>
-        const scannerDiv = document.getElementById('scanner');
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        const resultDiv = document.getElementById('result');
-        const errorDiv = document.getElementById('error');
-        const scanButton = document.getElementById('scanButton');
-        let stream;
+<script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
+<script>
+    const scannerDiv = document.getElementById('scanner');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const resultDiv = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+    const scanButton = document.getElementById('scanButton');
+    let stream;
 
-        // 检查是否支持 mediaDevices 对象
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            scanButton.addEventListener('click', function() {
-                startScanning();
-            });
-        } else {
-            showError('浏览器不支持 getUserMedia API');
+    // 检查是否支持 mediaDevices 对象
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        scanButton.addEventListener('click', function() {
+            startScanning();
+        });
+    } else {
+        showError('浏览器不支持 getUserMedia API');
+    }
+
+    function startScanning() {
+        clearResult();
+        // 如果之前有视频流存在，先关闭
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
         }
-
-        function startScanning() {
-            clearResult();
-            // 如果之前有视频流存在，先关闭
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            // 获取用户媒体流，选择后置摄像头
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(function(userMediaStream) {
-                    stream = userMediaStream;
-                    video.srcObject = stream;
-                    video.play().then(() => {
-                        console.log('视频流已启动');
-                        processVideo();
-                    });
-                })
-                .catch(function(error) {
-                    console.error('获取摄像头出错: ', error);
-                    showError(`获取摄像头出错 ${error}`);
+        // 获取用户媒体流，选择后置摄像头
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(function(userMediaStream) {
+                stream = userMediaStream;
+                video.srcObject = stream;
+                video.play().then(() => {
+                    console.log('视频流已启动');
+                    processVideo();
                 });
-        }
+            })
+            .catch(function(error) {
+                console.error('获取摄像头出错: ', error);
+                showError(`获取摄像头出错 ${error}`);
+            });
+    }
 
-        function processVideo() {
-            // 将视频流绘制到 canvas 上
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    function processVideo() {
+        // 将视频流绘制到 canvas 上
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // 获取 canvas 上的图像数据
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        // 获取 canvas 上的图像数据
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-            // 使用 jsQR 库识别二维码
-            try {
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                if (code) {
-                    console.log('扫描结果: ' + code.data);
-                    resultDiv.innerText = `扫描结果 ${code.data}`;
-                    // 停止视频播放
-                    video.pause();
-                    // 关闭视频页面和摄像头
-                    closeScanner();
-                } else {
-                    console.log('未扫描到二维码');
-                    resultDiv.innerText = '未扫描到二维码';
-                    // 继续处理视频流
-                    requestAnimationFrame(processVideo);
-                }
-            } catch (error) {
-                console.error('扫描出错: ', error);
-                showError(`扫描出错: ${error.message}`);
-            }
-        }
-
-        function showError(message) {
-            errorDiv.innerText = message;
-        }
-
-        function clearResult() {
-            resultDiv.innerText = '';
-        }
-
-        function closeScanner() {
-            // 隐藏视频页面
-            scannerDiv.style.display = 'none';
-            // 关闭摄像头
-            if (stream) {
+        // 使用 jsQR 库识别二维码
+        try {
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code) {
+                console.log('扫描结果: ' + code.data);
+                resultDiv.innerText = `扫描结果 ${code.data}`;
+                // 扫描到二维码后关闭摄像头
                 stream.getTracks().forEach(track => track.stop());
+                // 停止视频播放
+                video.pause();
+            } else {
+                console.log('未扫描到二维码');
+                resultDiv.innerText = '未扫描到二维码';
+                // 未扫描到二维码时继续处理视频流
+                requestAnimationFrame(processVideo);
             }
-            // 重新显示扫描按钮
-            scanButton.style.display = 'inline-block';
+        } catch (error) {
+            console.error('扫描出错: ', error);
+            showError(`扫描出错: ${error.message}`);
         }
-    </script>
+    }
+
+    function showError(message) {
+        errorDiv.innerText = message;
+    }
+
+    function clearResult() {
+        resultDiv.innerText = '';
+    }
+</script>
 </body>
 </html>
