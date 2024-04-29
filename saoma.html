@@ -11,7 +11,7 @@
         <video id="video" width="300" height="300" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
-        <button id="scanButton">开始扫描20</button>
+        <button id="scanButton">开始扫描21</button>
     </div>
     <div id="error"></div>
 
@@ -40,6 +40,7 @@
 
         function startScanning() {
             isScanning = true;
+            clearResult();
             // 如果之前有视频流存在，先关闭
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -96,6 +97,11 @@
 
         function showError(message) {
             errorDiv.innerText = message;
+        }
+
+        function clearResult() {
+            resultDiv.innerText = '';
+            scannerDiv.innerHTML = '';
         }
     </script>
 </body>
