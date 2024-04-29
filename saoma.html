@@ -10,6 +10,8 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
+    <button id="scanButton">开始扫描3</button>
+    <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
     <script>
@@ -17,19 +19,23 @@
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
         const resultDiv = document.getElementById('result');
+        const scanButton = document.getElementById('scanButton');
+        const errorDiv = document.getElementById('error');
 
-        // 获取用户媒体流，选择前置摄像头
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-            .then(function(stream) {
-                video.srcObject = stream;
-                video.play();
-                // 实时处理视频流
-                setInterval(processVideo, 1000 / 30); // 处理每秒 30 帧
-            })
-            .catch(function(error) {
-                console.error('获取摄像头出错: ', error);
-                resultDiv.innerText = `获取摄像头出错 ${error}`;
-            });
+        scanButton.addEventListener('click', function() {
+            // 获取用户媒体流，选择前置摄像头
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    // 实时处理视频流
+                    setInterval(processVideo, 1000 / 30); // 处理每秒 30 帧
+                })
+                .catch(function(error) {
+                    console.error('获取摄像头出错: ', error);
+                    errorDiv.innerText = `获取摄像头出错 ${error}`;
+                });
+        });
 
         function processVideo() {
             // 将视频流绘制到 canvas 上
@@ -39,13 +45,18 @@
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
             // 使用 jsQR 库识别二维码
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-            if (code) {
-                console.log('扫描结果: ' + code.data);
-                resultDiv.innerText = `扫描结果 ${code.data}`;
-            } else {
-                console.log('未扫描到二维码');
-                resultDiv.innerText = '未扫描到二维码';
+            try {
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                if (code) {
+                    console.log('扫描结果: ' + code.data);
+                    resultDiv.innerText = `扫描结果 ${code.data}`;
+                } else {
+                    console.log('未扫描到二维码');
+                    resultDiv.innerText = '未扫描到二维码';
+                }
+            } catch (error) {
+                console.error('扫描出错: ', error);
+                errorDiv.innerText = `扫描出错: ${error.message}`;
             }
         }
     </script>
