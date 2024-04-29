@@ -11,7 +11,7 @@
         <video id="video" width="300" height="300" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
-        <button id="scanButton">开始扫描16</button>
+        <button id="scanButton">开始扫描17</button>
     </div>
     <div id="error"></div>
 
@@ -40,6 +40,10 @@
 
         function startScanning() {
             isScanning = true;
+            // 如果之前有视频流存在，先关闭
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
             // 获取用户媒体流，选择后置摄像头
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function(userMediaStream) {
