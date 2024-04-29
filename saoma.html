@@ -71,7 +71,9 @@
                 console.log('扫描结果: ' + code.data);
                 resultDiv.innerText = `扫描结果 ${code.data}`;
                 // 扫描到二维码后关闭摄像头
-                stream.getTracks().forEach(track => track.stop());
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
                 // 停止视频播放
                 video.pause();
             } else {
