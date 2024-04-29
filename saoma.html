@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描10</button>
+    <button id="scanButton">开始扫描11</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -66,6 +66,10 @@
                     // 扫描到二维码后停止扫描和关闭摄像头
                     clearInterval(scanningInterval);
                     stream.getTracks().forEach(track => track.stop());
+                    // 清除扫描结果
+                    setTimeout(() => {
+                        resultDiv.innerText = '';
+                    }, 3000); // 这里设置延迟时间，让扫描结果显示一段时间后清除
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
@@ -78,4 +82,3 @@
     </script>
 </body>
 </html>
-`
