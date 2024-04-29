@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描8</button>
+    <button id="scanButton">开始扫描9</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -27,6 +27,11 @@
         // 检查是否支持 mediaDevices 对象
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             scanButton.addEventListener('click', function() {
+                // 如果已经有摄像头流存在，先关闭
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+
                 // 获取用户媒体流，选择后置摄像头
                 navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                     .then(function(userMediaStream) {
