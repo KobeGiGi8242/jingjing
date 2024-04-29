@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描11</button>
+    <button id="scanButton">开始扫描</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -21,7 +21,6 @@
         const resultDiv = document.getElementById('result');
         const scanButton = document.getElementById('scanButton');
         const errorDiv = document.getElementById('error');
-        let scanningInterval;
         let stream;
 
         // 检查是否支持 mediaDevices 对象
@@ -39,7 +38,7 @@
                         video.srcObject = stream;
                         video.play();
                         // 实时处理视频流
-                        scanningInterval = setInterval(processVideo, 1000 / 30); // 处理每秒 30 帧
+                        processVideo();
                     })
                     .catch(function(error) {
                         console.error('获取摄像头出错: ', error);
@@ -63,16 +62,15 @@
                 if (code) {
                     console.log('扫描结果: ' + code.data);
                     resultDiv.innerText = `扫描结果 ${code.data}`;
-                    // 扫描到二维码后停止扫描和关闭摄像头
-                    clearInterval(scanningInterval);
+                    // 扫描到二维码后关闭摄像头
                     stream.getTracks().forEach(track => track.stop());
-                    // 清除扫描结果
-                    setTimeout(() => {
-                        resultDiv.innerText = '';
-                    }, 3000); // 这里设置延迟时间，让扫描结果显示一段时间后清除
+                    // 停止视频播放
+                    video.pause();
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
+                    // 未扫描到二维码时继续处理视频流
+                    requestAnimationFrame(processVideo);
                 }
             } catch (error) {
                 console.error('扫描出错: ', error);
