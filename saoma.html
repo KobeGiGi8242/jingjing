@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描9</button>
+    <button id="scanButton">开始扫描10</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -63,8 +63,9 @@
                 if (code) {
                     console.log('扫描结果: ' + code.data);
                     resultDiv.innerText = `扫描结果 ${code.data}`;
-                    // 扫描到二维码后停止扫描
+                    // 扫描到二维码后停止扫描和关闭摄像头
                     clearInterval(scanningInterval);
+                    stream.getTracks().forEach(track => track.stop());
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
@@ -77,3 +78,4 @@
     </script>
 </body>
 </html>
+`
