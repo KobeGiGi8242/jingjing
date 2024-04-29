@@ -1,105 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <h1 id="title">扫描结果</h1>
+    <div id="error"></div>
+    <video id="video" width="300" height="300"></video>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
+    <script>
+        let title = document.getElementById("title");
+        let error = document.getElementById("error");
 
-    <title>Camera Example</title>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('scan').addEventListener('click', function() {
+                // 获取视频流
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(stream) {
+                        var video = document.getElementById('video');
+                        video.srcObject = stream;
+                        video.play();
 
-</head>
-<body>
-<!--<h1>扫描二维码</h1>
-<input type="file" accept="image/*" capture="environment" id="fileInput" style="display: none;">
-<button id="scanButton">开始扫描1</button>
-<div id="result"></div>
+                        var canvas = document.createElement('canvas');
+                        var context = canvas.getContext('2d');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
 
-<script src="https://cdn.jsdelivr.net/npm/jsqr"></script> &lt;!&ndash; 引入 jsQR 库 &ndash;&gt;
-
-<script>
-    document.getElementById('scanButton').addEventListener('click', function() {
-        document.getElementById('fileInput').click();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        if (!file) return;
-
-        var reader = new FileReader();
-        reader.onload = function() {
-            var img = new Image();
-            img.onload = function() {
-                var canvas = document.createElement('canvas');
-                var context = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                context.drawImage(img, 0, 0);
-
-                var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                var code = jsQR(imageData.data, imageData.width, imageData.height);
-                console.log(code)
-                alert(code,"data")
-                if (code) {
-                    document.getElementById('result').innerText = '扫描到二维码：' + code.data;
-                    // 这里可以添加二维码扫描成功后的处理逻辑
-                    alert(code,"err")
-                } else {
-                    alert(code,"errr")
-                    document.getElementById('result').innerText = '未扫描到二维码';
-                }
-                alert(code,"errrr")
-            };
-            img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-    });
-</script>-->
-<h1 id="err">测试</h1>
-
-<video id="video" width="300" height="300"></video>
-<button id="scan">扫描二维码1</button>
-<h1 id="title"></h1>
-
-
-<script>
-    let title = document.getElementById("title");
-    document.getElementById('scan').addEventListener('click', function() {
-        // 获取视频流
-        try{
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    var video = document.getElementById('video');
-                    video.srcObject = stream;
-                    video.play();
-
-                    // 创建BarcodeDetector实例
-                    var barcodeDetector = new BarcodeDetector();
-
-                    // 扫描二维码
-                    barcodeDetector.detect(video)
-                        .then(function(barcodes) {
-                            barcodes.forEach(function(barcode) {
-                                console.log('扫描结果: ' + barcode.rawValue);
-                                title.innerText = `扫码结果 ${barcode.rawValue}`;
-                            });
-                        })
-                        .catch(function(error) {
-                            console.error('扫描二维码出错: ', error);
-                            title.innerText = `获取摄像头出错 ${error}`;
-                        });
-                })
-                .catch(function(error) {
-                    console.error('获取摄像头出错: ', error);
-                    title.innerText = `获取摄像头出错 ${error}`;
-                });
-        }catch(e){
-            let err = document.getElementById("err");
-            err.innerText = e;
-        }
-
-    });
-</script>
-
-</body>
-
-
-</html>
+                        setInterval(function() {
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            var code;
+                            try {
+                                code = jsQR(imageData.data, imageData.width, imageData.height);
+                                if (code) {
+                                    console.log('扫描结果: ' + code.data);
+                                    title.innerText = `扫码结果 ${code.data}`;
+                                } else {
+                                    console.log('未扫描到二维码');
+                                    title.innerText = '未扫描到二维码';
+                                }
+                            } catch (e) {
+                                console.error('扫描出错: ', e);
+                                error.innerText = `扫描出错: ${e.message}`;
+                            }
+                        }, 1000);
+                    })
+                    .catch(function(error) {
+                        console.error('获取摄像头出错: ', error);
+                        title.innerText = `获取摄像头出错 ${error}`;
+                    });
+            });
+        });
+    </script>
+    <button id="scan">开始扫描2</button>
