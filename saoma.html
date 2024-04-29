@@ -10,7 +10,7 @@
     <video id="video" width="300" height="300" autoplay></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="result"></div>
-    <button id="scanButton">开始扫描4</button>
+    <button id="scanButton">开始扫描</button>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -21,6 +21,7 @@
         const resultDiv = document.getElementById('result');
         const scanButton = document.getElementById('scanButton');
         const errorDiv = document.getElementById('error');
+        let scanningInterval;
 
         scanButton.addEventListener('click', function() {
             // 获取用户媒体流，选择后置摄像头
@@ -29,7 +30,7 @@
                     video.srcObject = stream;
                     video.play();
                     // 实时处理视频流
-                    setInterval(processVideo, 1000 / 30); // 处理每秒 30 帧
+                    scanningInterval = setInterval(processVideo, 1000 / 30); // 处理每秒 30 帧
                 })
                 .catch(function(error) {
                     console.error('获取摄像头出错: ', error);
@@ -50,6 +51,8 @@
                 if (code) {
                     console.log('扫描结果: ' + code.data);
                     resultDiv.innerText = `扫描结果 ${code.data}`;
+                    // 扫描到二维码后停止扫描
+                    clearInterval(scanningInterval);
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
