@@ -11,9 +11,9 @@
         <video id="video" width="300" height="300" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
-        <button id="scanButton">开始扫描22</button>
+        <div id="error"></div>
+        <button id="scanButton">开始扫描23</button>
     </div>
-    <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
     <script>
@@ -22,24 +22,20 @@
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
         const resultDiv = document.getElementById('result');
-        const scanButton = document.getElementById('scanButton');
         const errorDiv = document.getElementById('error');
+        const scanButton = document.getElementById('scanButton');
         let stream;
-        let isScanning = false;
 
         // 检查是否支持 mediaDevices 对象
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             scanButton.addEventListener('click', function() {
-                if (!isScanning) {
-                    startScanning();
-                }
+                startScanning();
             });
         } else {
             showError('浏览器不支持 getUserMedia API');
         }
 
         function startScanning() {
-            isScanning = true;
             clearResult();
             // 如果之前有视频流存在，先关闭
             if (stream) {
@@ -51,14 +47,13 @@
                     stream = userMediaStream;
                     video.srcObject = stream;
                     video.play().then(() => {
-                        // 实时处理视频流
+                        console.log('视频流已启动');
                         processVideo();
                     });
                 })
                 .catch(function(error) {
                     console.error('获取摄像头出错: ', error);
                     showError(`获取摄像头出错 ${error}`);
-                    isScanning = false;
                 });
         }
 
@@ -79,7 +74,6 @@
                     stream.getTracks().forEach(track => track.stop());
                     // 停止视频播放
                     video.pause();
-                    isScanning = false;
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
@@ -89,7 +83,6 @@
             } catch (error) {
                 console.error('扫描出错: ', error);
                 showError(`扫描出错: ${error.message}`);
-                isScanning = false;
             }
         }
 
@@ -99,7 +92,6 @@
 
         function clearResult() {
             resultDiv.innerText = '';
-            scannerDiv.innerHTML = '';
         }
     </script>
 </body>
