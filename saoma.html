@@ -1,49 +1,53 @@
-   <h1 id="title">扫描结果</h1>
-    <div id="error"></div>
-    <video id="video" width="300" height="300"></video>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream with QR Code Recognition</title>
+</head>
+<body>
+    <h1>Live Stream with QR Code Recognition</h1>
+    <video id="video" width="300" height="300" autoplay></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div id="result"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
     <script>
-        let title = document.getElementById("title");
-        let error = document.getElementById("error");
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const resultDiv = document.getElementById('result');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('scan').addEventListener('click', function() {
-                // 获取视频流
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function(stream) {
-                        var video = document.getElementById('video');
-                        video.srcObject = stream;
-                        video.play();
-
-                        var canvas = document.createElement('canvas');
-                        var context = canvas.getContext('2d');
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-
-                        setInterval(function() {
-                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                            var code;
-                            try {
-                                code = jsQR(imageData.data, imageData.width, imageData.height);
-                                if (code) {
-                                    console.log('扫描结果: ' + code.data);
-                                    title.innerText = `扫码结果 ${code.data}`;
-                                } else {
-                                    console.log('未扫描到二维码');
-                                    title.innerText = '未扫描到二维码';
-                                }
-                            } catch (e) {
-                                console.error('扫描出错: ', e);
-                                error.innerText = `扫描出错: ${e.message}`;
-                            }
-                        }, 1000);
-                    })
-                    .catch(function(error) {
-                        console.error('获取摄像头出错: ', error);
-                        title.innerText = `获取摄像头出错 ${error}`;
-                    });
+        // 获取用户媒体流，选择前置摄像头
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+                // 实时处理视频流
+                setInterval(processVideo, 1000 / 30); // 处理每秒 30 帧
+            })
+            .catch(function(error) {
+                console.error('获取摄像头出错: ', error);
+                resultDiv.innerText = `获取摄像头出错 ${error}`;
             });
-        });
+
+        function processVideo() {
+            // 将视频流绘制到 canvas 上
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // 获取 canvas 上的图像数据
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            // 使用 jsQR 库识别二维码
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code) {
+                console.log('扫描结果: ' + code.data);
+                resultDiv.innerText = `扫描结果 ${code.data}`;
+            } else {
+                console.log('未扫描到二维码');
+                resultDiv.innerText = '未扫描到二维码';
+            }
+        }
     </script>
-    <button id="scan">开始扫描2</button>
+</body>
+</html>
