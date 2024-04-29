@@ -11,7 +11,7 @@
         <video id="video" width="300" height="300" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
         <div id="result"></div>
-        <button id="scanButton">开始扫描18</button>
+        <button id="scanButton">开始扫描19</button>
     </div>
     <div id="error"></div>
 
@@ -35,7 +35,7 @@
                 }
             });
         } else {
-            errorDiv.innerText = '浏览器不支持 getUserMedia API';
+            showError('浏览器不支持 getUserMedia API');
         }
 
         function startScanning() {
@@ -56,7 +56,7 @@
                 })
                 .catch(function(error) {
                     console.error('获取摄像头出错: ', error);
-                    errorDiv.innerText = `获取摄像头出错 ${error}`;
+                    showError(`获取摄像头出错 ${error}`);
                     isScanning = false;
                 });
         }
@@ -89,9 +89,13 @@
                 }
             } catch (error) {
                 console.error('扫描出错: ', error);
-                errorDiv.innerText = `扫描出错: ${error.message}`;
+                showError(`扫描出错: ${error.message}`);
                 isScanning = false;
             }
+        }
+
+        function showError(message) {
+            errorDiv.innerText = message;
         }
     </script>
 </body>
