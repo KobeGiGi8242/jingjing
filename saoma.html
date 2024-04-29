@@ -7,14 +7,17 @@
 </head>
 <body>
     <h1>Live Stream with QR Code Recognition</h1>
-    <video id="video" width="300" height="300" autoplay></video>
-    <canvas id="canvas" style="display: none;"></canvas>
-    <div id="result"></div>
-    <button id="scanButton">开始扫描15</button>
+    <div id="scanner">
+        <video id="video" width="300" height="300" autoplay></video>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <div id="result"></div>
+        <button id="scanButton">开始扫描16</button>
+    </div>
     <div id="error"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
     <script>
+        const scannerDiv = document.getElementById('scanner');
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
@@ -71,6 +74,8 @@
                     // 停止视频播放
                     video.pause();
                     isScanning = false;
+                    // 显示扫描成功后，点击按钮重新开始扫描的提示
+                    scannerDiv.innerHTML += '<p>扫描成功，点击按钮重新扫描</p>';
                 } else {
                     console.log('未扫描到二维码');
                     resultDiv.innerText = '未扫描到二维码';
